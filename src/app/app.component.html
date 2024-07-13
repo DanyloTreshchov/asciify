@@ -1,20 +1,255 @@
-<input type="file" accept="image/*" id="image-selector" onchange="handleImageSelect(event)">
-<p>Font Size</p>
-<div>
-  <input type="radio" id="radio-8px" name="font-size" value="8">
-  <label for="radio-8px">8px</label>
-</div>
-<div>
-  <input type="radio" id="radio-16px" name="font-size" value="16">
-  <label for="radio-16px">16px</label>
-</div>
-<div>
-  <input type="radio" id="radio-32px" name="font-size" value="32">
-  <label for="radio-32px">32px</label>
-</div>
+<style>
+  main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-weight: bold;
+    background-color: rgb(50, 22, 61);
+    color: rgb(253, 15, 70);
+    border-color: rgb(253, 15, 70);
+  }
 
-<button id="asciify-button" (click)="asciify()">Asciify</button>
+  #image-selector-container {
+    min-width: 80%;
+    margin: 1vh;
+  }
 
-<div id="image-container"></div>
+  #image-selector {
+    opacity: 0;
+    width: 0.1px;
+    height: 0.1px;
+    position: absolute;
+  }
 
-<pre></pre>
+  .custom-file-selector {
+    width: 100%;
+    min-height: 50px;
+    max-height: 5vh;
+    background-color: rgb(50, 22, 61);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    text-align: center;
+    border: 2px solid;
+    border-radius: 25px;
+
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  .custom-file-selector:hover {
+    background-color: rgb(253, 15, 70);
+    color: rgb(50, 22, 61);
+  }
+
+  #font-size-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin: 1vh;
+    width: 80%;
+
+    border: 2px solid;
+    border-radius: 25px;
+    overflow: hidden;
+  }
+
+  .font-size-radio {
+    height: 50px;
+    width: calc(100% / 3);
+    margin: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  #fsr-middle {
+    border-left: 2px solid;
+    border-right: 2px solid;
+  }
+
+  .font-size-radio input {
+    opacity: 0;
+    width: 0.1px;
+    height: 0.1px;
+    position: absolute;
+  }
+
+  .font-size-radio:hover {
+    background-color: rgb(253, 15, 70);
+    color: rgb(50, 22, 61);
+
+  }
+
+  .font-size-radio input:checked + label {
+    background-color: rgb(253, 15, 70);
+    color: rgb(50, 22, 61);
+  }
+
+  .font-size-radio label{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  #mode-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin: 1vh;
+    width: 80%;
+
+    border: 2px solid;
+    border-radius: 25px;
+    overflow: hidden;
+  }
+
+  .mode-radio {
+    height: 50px;
+    width: 50%;
+    margin: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  #mode-colour {
+    border-left: 2px solid;
+  }
+
+  .mode-radio input {
+    opacity: 0;
+    width: 0.1px;
+    height: 0.1px;
+    position: absolute;
+  }
+
+  .mode-radio:hover {
+    background-color: rgb(253, 15, 70);
+    color: rgb(50, 22, 61);
+  }
+
+  .mode-radio input:checked + label {
+    background-color: rgb(253, 15, 70);
+    color: rgb(50, 22, 61);
+  }
+
+  .mode-radio label{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  #image-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+    max-width: 80%;
+    max-height: 80%;
+    border: 2px solid;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 1vh;
+  }
+
+  #image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  #asciify-button {
+    margin-top: 1vh;
+    width: 80%;
+    min-height: 50px;
+    background-color: rgb(253, 15, 70);
+    color: rgb(50, 22, 61);
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  #asciify-button:hover {
+    background-color: rgb(50, 22, 61);
+    color: rgb(253, 15, 70);
+  }
+</style>
+
+<main>
+  <div id="image-selector-container">
+    <input type="file" id="image-selector" accept="image/*" (change)="handleImageSelect($event)">
+    <label for="image-selector" class="custom-file-selector" id="image-label">Choose a file</label>
+  </div>
+  
+  <!-- JavaScript -->
+  <script>
+    document.querySelector('.custom-file-selector').addEventListener('click', function() {
+      document.querySelector('#image-selector').click();
+    });
+  </script>
+
+  <div id="font-size-container">
+    <div class="font-size-radio">
+      <input type="radio" id="radio-8px" name="font-size" value="8">
+      <label for="radio-8px" class="label-radio-8px">8px</label>
+    </div>
+
+    <div class="font-size-radio" id="fsr-middle">
+      <input type="radio" id="radio-16px" name="font-size" value="16">
+      <label for="radio-16px" class="label-radio-16px">16px</label>
+    </div>
+
+    <div class="font-size-radio">
+      <input type="radio" id="radio-32px" name="font-size" value="32">
+      <label for="radio-32px" class="label-radio-32px">32px</label>
+    </div>
+
+    <script>
+      document.querySelectorAll('.font-size-radio').addEventListener('click', function() {
+        document.querySelector('.font-size-radio input').click();
+      });
+    </script>
+  </div>
+
+  <div id="mode-container">
+    <div class="mode-radio">
+      <input type="radio" id="radio-mono" name="mode" value="false">
+      <label for="radio-mono">Mono</label>
+    </div>
+
+    <div class="mode-radio" id="mode-colour">
+      <input type="radio" id="radio-color" name="mode" value="true">
+      <label for="radio-color">Colour</label>
+    </div>
+
+    <script>
+      document.querySelectorAll('.mode-radio').addEventListener('click', function() {
+        document.querySelector('.mode-radio input').click();
+      });
+    </script>
+  </div>
+
+
+  <button id="asciify-button" (click)="asciify()">Asciify</button>
+
+  <div id="image-container">
+  </div>
+</main>

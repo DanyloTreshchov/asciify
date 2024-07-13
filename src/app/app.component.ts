@@ -15,6 +15,11 @@ export class AppComponent {
 
   asciify() {
     console.log("asciify");
+    let button = document.getElementById("asciify-button");
+    if (button == null) {
+      return;
+    }
+
     //Get the input image
     let image = document.getElementById("image-selector") as HTMLInputElement;
     if (image == null) {
@@ -25,11 +30,12 @@ export class AppComponent {
       return;
     }
     //Get font-size value from radio buttons
+    let font_size = 8;
     let radios = document.getElementsByName("font-size");
-    let font_size = 12;
     for (let i = 0; i < radios.length; i++) {
       if ((radios[i] as HTMLInputElement).checked) {
         font_size = parseInt((radios[i] as HTMLInputElement).value);
+        break;
       }
     }
     let h = 8;
@@ -51,16 +57,32 @@ export class AppComponent {
         break;
     }
 
+    //Get colorize value from radio buttons (t/f)
+    let colorize = "false";
+    let radios_colorize = document.getElementsByName("mode");
+    for (let i = 0; i < radios_colorize.length; i++) {
+      if ((radios_colorize[i] as HTMLInputElement).checked) {
+        colorize = (radios_colorize[i] as HTMLInputElement).value;
+        break;
+      }
+    }
+    colorize = colorize == "true" ? "true" : "false";
     console.log("font-size: " + font_size);
     console.log("image: " + file.name);
+    console.log("colorize: " + colorize);
     console.log("Encoding image...");
+    button.innerHTML = "Processing...";
     this.b64EncodeImage(file).then((data) => {
       console.log("Image encoded");
       console.log("Sending image to server...");
-      this.processImage(data, h, w).then((data) => {
+      this.processImage(data, h, w, colorize).then((data) => {
         console.log("Image sent to server");
         console.log("Receiving ASCII image...");
         this.displayImage(data);
+        button.innerHTML = "Asciify";
+      }).catch((error) => {
+        console.log("Error: " + error);
+        button.innerHTML = "Asciify";
       });
     });
   }
@@ -78,12 +100,15 @@ export class AppComponent {
     });
   }
 
-  processImage(data: any, h: number, w: number) {
+  processImage(data: any, h: number, w: number, colorize: string = "false") {
     let url = "https://europe-west1-vast-arena-424819-f6.cloudfunctions.net/image_convertor";
     let payload = {
       image: data,
       w: w,
-      h: h
+      h: h,
+      bg: [50, 22, 61],
+      tc: [253, 15, 70],
+      colorized: colorize
     };
     return fetch(url, {
       method: 'POST',
@@ -103,17 +128,51 @@ export class AppComponent {
       return;
     }
     let b64 = data.image;
-    //decode base64 image
-    let img = new Image();
-    img.src = "data:image/png;base64," + b64;
-    //Set image
-    ascii_image.innerHTML = "";
-    ascii_image.appendChild(img);
+    //convert b64 to file
+    let byteString = atob(b64);
+    let ab = new ArrayBuffer(byteString.length);
+    let ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    let blob = new Blob([ab], { type: 'image/png' });
+    this.setImages(blob);
+  }
 
-    //display ascii image
-    let ascii = data.text;
-    let ascii_text = document.createElement("pre");
-    ascii_text.innerHTML = ascii;
-    ascii_image.appendChild(ascii_text);
+  handleImageSelect(event: any) {
+    console.log("handleImageSelect");
+    let image = document.getElementById("image-selector") as HTMLInputElement;
+    if (image == null) {
+      console.log("image is null");
+      return;
+    }
+    let file = image?.files?.[0];
+    if (file == null) {
+      console.log("file is null");
+      return;
+    }
+    //get label
+    let label = document.getElementById("image-label") as HTMLLabelElement;
+    label.innerHTML = file.name;
+    this.setImages(file);
+  }
+
+  setImages(image: any) {
+    if (image == null) {
+      console.log("file is null");
+      return;
+    }
+    let img_container = document.getElementById("image-container") as HTMLImageElement;
+    if (img_container == null) {
+      console.log("img is null");
+      return;
+    }
+    let img = new Image();
+    img.src = URL.createObjectURL(image);
+    img.style.objectFit = "contain";
+    img.style.width = "100%";
+    img.style.height = "100%";
+    img_container.innerHTML = "";
+    img_container.appendChild(img);
   }
 }
