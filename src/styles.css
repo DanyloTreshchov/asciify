@@ -4,3 +4,46 @@
     box-sizing: border-box;
     font-family: "Roboto Mono", monospace;
 }
+
+#download{
+    width: 40%;
+    height: 50px;
+    background-color: rgb(253, 15, 70);
+    color: rgb(50, 22, 61);
+    border-radius: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border: 0;
+    transition: all 0.3s;
+    text-decoration: none;
+}
+
+#download:hover{
+    background-color: rgb(50, 22, 61);
+    color: rgb(253, 15, 70);
+    border: 2px solid rgb(253, 15, 70);
+}
+
+#copy{
+    width: 40%;
+    height: 50px;
+    background-color: rgb(253, 15, 70);
+    color: rgb(50, 22, 61);
+    border-radius: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border: 0;
+    font-weight: bold;
+    font-size: 1em;
+    transition: all 0.3s;
+}
+
+#copy:hover{
+    background-color: rgb(50, 22, 61);
+    color: rgb(253, 15, 70);
+    border: 2px solid rgb(253, 15, 70);
+}

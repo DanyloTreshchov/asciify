@@ -122,6 +122,36 @@ export class AppComponent {
     });
   }
 
+  CDButtons(image: any, text: any){
+    //Create download button for image
+    let download = document.createElement("a");
+    download.innerHTML = "Download";
+    download.href = URL.createObjectURL(image);
+    download.download = "ascii_image.png";
+    download.id = "download";
+
+    //Create copy button for text
+    let copy = document.createElement("button");
+    copy.innerHTML = "Copy";
+    copy.onclick = () => {
+      navigator.clipboard.writeText(text).then(() => {
+        console.log("Text copied to clipboard");
+      }).catch((error) => {
+        console.log("Error: " + error);
+      });
+    };
+    copy.id = "copy";
+
+    //Add buttons to container
+    let container = document.getElementById("button-container");
+    if (container == null) {
+      return;
+    }
+    container.innerHTML = "";
+    container.appendChild(download);
+    container.appendChild(copy);
+  }
+
   displayImage(data: any) {
     let ascii_image = document.getElementById("image-container");
     if (ascii_image == null) {
@@ -137,6 +167,7 @@ export class AppComponent {
     }
     let blob = new Blob([ab], { type: 'image/png' });
     this.setImages(blob);
+    this.CDButtons(blob, data.text);
   }
 
   handleImageSelect(event: any) {
